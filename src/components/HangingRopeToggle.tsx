@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, useAnimation } from "framer-motion";
+import { motion, useAnimation, AnimatePresence } from "framer-motion";
 import { Sparkles, EyeOff, Eye } from "lucide-react";
 
 export default function HangingRopeToggle() {
   const [mounted, setMounted] = useState(false);
   const [isHarryVisible, setIsHarryVisible] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [tapMessage, setTapMessage] = useState<string | null>(null);
   const pullControls = useAnimation();
 
   useEffect(() => {
@@ -23,13 +24,13 @@ export default function HangingRopeToggle() {
   }, []);
 
   const handlePull = async () => {
-    // 1. Trigger realistic pull-cord spring physics
-    await pullControls.start({
-      y: [0, 22, -3, 2, 0],
-      scaleY: [1, 1.2, 0.95, 1.02, 1],
+    // 1. Realistic pull-cord spring physics
+    pullControls.start({
+      y: [0, 24, -4, 2, 0],
+      scaleY: [1, 1.22, 0.94, 1.02, 1],
       scaleX: [1, 0.92, 1.03, 0.99, 1],
       transition: {
-        duration: 0.6,
+        duration: 0.62,
         ease: [0.34, 1.56, 0.64, 1],
         times: [0, 0.25, 0.6, 0.8, 1],
       },
@@ -43,23 +44,29 @@ export default function HangingRopeToggle() {
     window.dispatchEvent(
       new CustomEvent("wobli:toggle-harry", { detail: { visible: nextState } })
     );
+
+    // 3. Show instant feedback tooltip on tap
+    setTapMessage(nextState ? "Harry is Flying! ✨" : "Harry Hidden 🧹");
+    setTimeout(() => {
+      setTapMessage(null);
+    }, 2400);
   };
 
   if (!mounted) return null;
 
   return (
     <div
-      className="fixed top-0 left-2.5 sm:left-auto sm:right-28 lg:right-40 z-[10000] pointer-events-auto select-none scale-[0.78] sm:scale-100 origin-top"
+      className="fixed top-0 right-[112px] sm:right-28 lg:right-40 z-[10000] pointer-events-auto select-none"
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
       {/* Swaying Pendulum Motion Container */}
       <motion.div
         className="origin-top"
-        animate={{ rotate: [-2.5, 2.5, -2.5] }}
+        animate={{ rotate: [-2.8, 2.8, -2.8] }}
         transition={{
           repeat: Infinity,
-          duration: 4.5,
+          duration: 4.2,
           ease: "easeInOut",
         }}
       >
@@ -72,21 +79,21 @@ export default function HangingRopeToggle() {
           {/* Ceiling Mount Ring */}
           <div className="w-3.5 h-1.5 bg-secondary rounded-b-md shadow-xs border border-secondary/40" />
 
-          {/* Rope Cord with braided texture (Shorter on mobile to prevent overlapping items) */}
-          <div className="w-1.5 h-8 sm:h-20 bg-gradient-to-b from-[#b88c53] via-[#d4a76a] to-[#9c723e] rounded-full shadow-xs relative">
+          {/* Rope Cord with braided texture */}
+          <div className="w-1.5 h-12 sm:h-20 bg-gradient-to-b from-[#b88c53] via-[#d4a76a] to-[#9c723e] rounded-full shadow-xs relative">
             <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_2px,rgba(0,0,0,0.15)_2px,rgba(0,0,0,0.15)_4px)]" />
           </div>
 
           {/* Wooden Bead Connector */}
           <div className="w-3 h-3 rounded-full bg-secondary-container border border-secondary shadow-xs -my-0.5 z-10" />
 
-          {/* Dangling Creature Button */}
+          {/* Dangling Blue/Purple Wobli Creature Button */}
           <div
-            className="group relative flex flex-col items-center transform hover:scale-105 active:scale-95 transition-transform"
+            className="group relative flex flex-col items-center transform hover:scale-108 active:scale-95 transition-transform"
             aria-label={isHarryVisible ? "Pull to hide Harry Potter" : "Pull to show Harry Potter"}
           >
             {/* Cute Creature Body */}
-            <div className="relative w-11 h-12 sm:w-12 sm:h-13 bg-gradient-to-b from-[#8f47ff] via-[#7620e7] to-[#5b0cb8] rounded-[22px] shadow-lg border-2 border-white/60 flex items-center justify-center overflow-hidden">
+            <div className="relative w-11 h-12 sm:w-12 sm:h-13 bg-gradient-to-b from-[#8f47ff] via-[#7620e7] to-[#5b0cb8] rounded-[22px] shadow-[0_6px_20px_rgba(118,32,231,0.38)] border-2 border-white/60 flex items-center justify-center overflow-hidden">
               {/* Creature Ears / Horns */}
               <div className="absolute -top-1 left-1.5 w-3 h-3 bg-[#7620e7] rounded-tl-full rotate-[-15deg] border-t border-l border-white/40" />
               <div className="absolute -top-1 right-1.5 w-3 h-3 bg-[#7620e7] rounded-tr-full rotate-[15deg] border-t border-r border-white/40" />
@@ -137,24 +144,29 @@ export default function HangingRopeToggle() {
           </div>
         </motion.div>
 
-        {/* Responsive Tooltip */}
-        <div
-          className={`absolute top-full left-0 sm:left-auto sm:right-1/2 sm:translate-x-1/2 mt-2 px-3 py-1.5 bg-surface-container-lowest/95 backdrop-blur-md rounded-2xl shadow-xl border border-surface-container-high text-left sm:text-center whitespace-nowrap transition-all duration-200 pointer-events-none ${
-            showTooltip
-              ? "opacity-100 translate-y-0 scale-100"
-              : "opacity-0 translate-y-1 scale-95"
-          }`}
-        >
-          <div className="flex items-center gap-1.5 text-[11px] font-display font-bold text-on-surface">
-            <Sparkles className="w-3 h-3 text-secondary-container" />
-            <span>
-              {isHarryVisible ? "Pull to Hide Harry 🧹" : "Pull to Wake Harry! ✨"}
-            </span>
-          </div>
-          <span className="block text-[9px] font-sans text-on-surface-variant">
-            Tap dangling creature
-          </span>
-        </div>
+        {/* Hover / Tap Floating Tooltip (Visible on hover on desktop & automatically upon tap on mobile) */}
+        <AnimatePresence>
+          {(showTooltip || tapMessage) && (
+            <motion.div
+              initial={{ opacity: 0, y: 6, scale: 0.92 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 4, scale: 0.95 }}
+              transition={{ duration: 0.18 }}
+              className="absolute top-full right-1/2 translate-x-1/2 mt-1.5 px-3 py-1.5 bg-surface-container-lowest/95 backdrop-blur-md rounded-2xl shadow-xl border border-surface-container-high text-center whitespace-nowrap pointer-events-none z-50"
+            >
+              <div className="flex items-center gap-1.5 text-[11px] font-display font-bold text-on-surface">
+                <Sparkles className="w-3 h-3 text-secondary-container shrink-0" />
+                <span>
+                  {tapMessage ||
+                    (isHarryVisible ? "Pull to Hide Harry 🧹" : "Pull to Wake Harry! ✨")}
+                </span>
+              </div>
+              <span className="block text-[9px] font-sans text-on-surface-variant">
+                {isHarryVisible ? "Tap to pause mascot" : "Tap to fly again"}
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </div>
   );
