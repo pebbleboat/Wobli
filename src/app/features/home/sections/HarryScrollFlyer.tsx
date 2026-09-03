@@ -110,7 +110,7 @@ export default function HarryScrollFlyer() {
     }
   };
 
-  // Trigger audio when Harry surges/snaps past the camera (scrollProgress >= 0.70)
+  // Trigger audio strictly ONCE when Harry surges/snaps past the camera
   useEffect(() => {
     if (!isEnabled) return;
 
@@ -119,9 +119,6 @@ export default function HarryScrollFlyer() {
         hasPlayedSnapRef.current = true;
         playSnapSound();
       }
-    } else if (scrollProgress < 0.45) {
-      // Rearm trigger when scrolling back up
-      hasPlayedSnapRef.current = false;
     }
   }, [scrollProgress, isEnabled]);
 
