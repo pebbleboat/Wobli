@@ -6,12 +6,21 @@ import { useFrameSequence } from "@/hooks/useFrameSequence";
 
 export default function HarryScrollFlyer() {
   const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const { ready, draw } = useFrameSequence("harry-potter");
+
+  // Switch between vertical 9:16 video for mobile and 16:9 for desktop
+  const sequenceName = isMobile ? "harry-potter-mobile" : "harry-potter";
+  const { ready, draw } = useFrameSequence(sequenceName);
 
   useEffect(() => {
     setMounted(true);
+
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
 
     const handleScroll = () => {
       const scrollY = window.scrollY;
@@ -24,12 +33,12 @@ export default function HarryScrollFlyer() {
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll, { passive: true });
+    window.addEventListener("resize", handleResize, { passive: true });
     handleScroll();
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -77,19 +86,19 @@ export default function HarryScrollFlyer() {
         <div
           className="absolute pointer-events-none w-3 h-3 bg-secondary-container rounded-full blur-xs animate-ping"
           style={{
-            top: "20%",
-            left: "15%",
+            top: isMobile ? "14%" : "20%",
+            left: isMobile ? "10%" : "15%",
             opacity: 1 - scrollProgress / 0.06,
           }}
         />
       )}
 
-      {/* Full-Viewport Cinematic Flight Canvas with Dynamic Dot-to-Flight Scaling */}
+      {/* Full-Viewport Cinematic Flight Canvas (Auto-Switches to Portrait on Mobile) */}
       <canvas
         ref={canvasRef}
         className="w-full h-full object-contain pointer-events-none transition-transform duration-75 filter drop-shadow-[0_20px_35px_rgba(0,0,0,0.18)]"
         style={{
-          transformOrigin: "15% 20%",
+          transformOrigin: isMobile ? "10% 14%" : "15% 20%",
           transform: `scale(${introScale})`,
         }}
       />
