@@ -3,6 +3,7 @@
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import HeroSection from "./sections/HeroSection";
+import HarryScrollFlyer from "./sections/HarryScrollFlyer";
 import HowItWorksSection from "./sections/HowItWorksSection";
 import FeaturedProductsSection from "./sections/FeaturedProductsSection";
 import PhotoToMiniatureBanner from "./sections/PhotoToMiniatureBanner";
@@ -41,6 +42,9 @@ export default function Home() {
       <main className="w-full pt-[104px] bg-surface flex-1 animate-page-enter">
         <div className="flex flex-col w-full">
           <HeroSection />
+
+          {/* Harry Potter Dynamic Scroll Flying Mascot Overlay */}
+          <HarryScrollFlyer />
 
           <HowItWorksSection
             selectedColor={selectedColor}
