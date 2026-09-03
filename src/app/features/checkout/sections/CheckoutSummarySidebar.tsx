@@ -268,7 +268,7 @@ export default function CheckoutSummarySidebar({
           </div>
         </div>
         <a
-          href="https://wa.me/919988962540"
+          href="https://wa.me/918840944840"
           target="_blank"
           rel="noopener noreferrer"
           className="font-sans text-xs font-bold text-primary hover:underline shrink-0"

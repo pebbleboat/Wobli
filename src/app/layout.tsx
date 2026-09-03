@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
 import "@/styles/globals.css";
 import ReactQueryClientProvider from "@/components/ReactQueryClientProvider";
 import ToastProvider from "@/components/ToastProvider";
+import WhatsAppWidget from "@/components/WhatsAppWidget";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -38,6 +39,7 @@ export default function RootLayout({
         <ReactQueryClientProvider>
           <ToastProvider />
           {children}
+          <WhatsAppWidget />
         </ReactQueryClientProvider>
       </body>
     </html>
