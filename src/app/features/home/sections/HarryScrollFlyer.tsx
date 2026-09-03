@@ -10,12 +10,26 @@ export default function HarryScrollFlyer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
 
+  const [isEnabled, setIsEnabled] = useState(true);
+
   // Switch between vertical 9:16 video for mobile and 16:9 for desktop
   const sequenceName = isMobile ? "harry-potter-mobile" : "harry-potter";
   const { ready, draw } = useFrameSequence(sequenceName);
 
   useEffect(() => {
     setMounted(true);
+
+    const saved = localStorage.getItem("wobli_harry_visible");
+    if (saved !== null) {
+      setIsEnabled(saved === "true");
+    }
+
+    const handleToggle = (e: Event) => {
+      const customEvent = e as CustomEvent<{ visible: boolean }>;
+      setIsEnabled(customEvent.detail.visible);
+    };
+
+    window.addEventListener("wobli:toggle-harry", handleToggle);
 
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -37,6 +51,7 @@ export default function HarryScrollFlyer() {
     handleScroll();
 
     return () => {
+      window.removeEventListener("wobli:toggle-harry", handleToggle);
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
     };
@@ -49,7 +64,7 @@ export default function HarryScrollFlyer() {
     }
   }, [ready, scrollProgress, draw]);
 
-  if (!mounted) return null;
+  if (!mounted || !isEnabled) return null;
 
   // Start from a tiny dot (0.05x) in the corner at scroll 0, expanding into flight as you scroll
   let introScale = 1;

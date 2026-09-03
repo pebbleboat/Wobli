@@ -4,6 +4,7 @@ import "@/styles/globals.css";
 import ReactQueryClientProvider from "@/components/ReactQueryClientProvider";
 import ToastProvider from "@/components/ToastProvider";
 import WhatsAppWidget from "@/components/WhatsAppWidget";
+import HangingRopeToggle from "@/components/HangingRopeToggle";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default function RootLayout({
           <ToastProvider />
           {children}
           <WhatsAppWidget />
+          <HangingRopeToggle />
         </ReactQueryClientProvider>
       </body>
     </html>
