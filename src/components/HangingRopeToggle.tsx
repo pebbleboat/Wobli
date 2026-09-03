@@ -24,7 +24,16 @@ export default function HangingRopeToggle() {
   }, []);
 
   const handlePull = async () => {
-    // 1. Realistic pull-cord spring physics
+    // 1. Play tactile mechanical 'tic-tac' pull-cord sound effect
+    try {
+      const clickAudio = new Audio("/audio/pull-click.mp3");
+      clickAudio.volume = 0.95;
+      clickAudio.play().catch(() => {});
+    } catch {
+      // Ignored
+    }
+
+    // 2. Realistic pull-cord spring physics
     pullControls.start({
       y: [0, 24, -4, 2, 0],
       scaleY: [1, 1.22, 0.94, 1.02, 1],
@@ -36,7 +45,7 @@ export default function HangingRopeToggle() {
       },
     });
 
-    // 2. Toggle state
+    // 3. Toggle state
     const nextState = !isHarryVisible;
     setIsHarryVisible(nextState);
     localStorage.setItem("wobli_harry_visible", String(nextState));
@@ -45,7 +54,7 @@ export default function HangingRopeToggle() {
       new CustomEvent("wobli:toggle-harry", { detail: { visible: nextState } })
     );
 
-    // 3. Show instant feedback tooltip on tap
+    // 4. Show instant feedback tooltip on tap
     setTapMessage(nextState ? "Harry is Flying! ✨" : "Harry Hidden 🧹");
     setTimeout(() => {
       setTapMessage(null);
@@ -144,7 +153,7 @@ export default function HangingRopeToggle() {
           </div>
         </motion.div>
 
-        {/* Hover / Tap Floating Tooltip (Visible on hover on desktop & automatically upon tap on mobile) */}
+        {/* Hover / Tap Floating Tooltip */}
         <AnimatePresence>
           {(showTooltip || tapMessage) && (
             <motion.div

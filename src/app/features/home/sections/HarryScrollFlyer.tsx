@@ -8,9 +8,11 @@ export default function HarryScrollFlyer() {
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const audioTagRef = useRef<HTMLAudioElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
 
   const [isEnabled, setIsEnabled] = useState(true);
+  const hasPlayedSnapRef = useRef(false);
 
   // Switch between vertical 9:16 video for mobile and 16:9 for desktop
   const sequenceName = isMobile ? "harry-potter-mobile" : "harry-potter";
@@ -18,6 +20,28 @@ export default function HarryScrollFlyer() {
 
   useEffect(() => {
     setMounted(true);
+
+    // One-time audio permission unlocker on any user gesture
+    const unlockAudio = () => {
+      if (audioTagRef.current) {
+        audioTagRef.current
+          .play()
+          .then(() => {
+            if (audioTagRef.current) {
+              audioTagRef.current.pause();
+              audioTagRef.current.currentTime = 0;
+            }
+          })
+          .catch(() => {});
+      }
+      window.removeEventListener("pointerdown", unlockAudio);
+      window.removeEventListener("touchstart", unlockAudio);
+      window.removeEventListener("click", unlockAudio);
+    };
+
+    window.addEventListener("pointerdown", unlockAudio, { passive: true });
+    window.addEventListener("touchstart", unlockAudio, { passive: true });
+    window.addEventListener("click", unlockAudio, { passive: true });
 
     const saved = localStorage.getItem("wobli_harry_visible");
     if (saved !== null) {
@@ -27,6 +51,9 @@ export default function HarryScrollFlyer() {
     const handleToggle = (e: Event) => {
       const customEvent = e as CustomEvent<{ visible: boolean }>;
       setIsEnabled(customEvent.detail.visible);
+      if (!customEvent.detail.visible && audioTagRef.current) {
+        audioTagRef.current.pause();
+      }
     };
 
     window.addEventListener("wobli:toggle-harry", handleToggle);
@@ -40,8 +67,14 @@ export default function HarryScrollFlyer() {
       const scrollY = window.scrollY;
       const docHeight =
         document.documentElement.scrollHeight - window.innerHeight;
-      const maxFlightScroll = docHeight > 100 ? docHeight : 3000;
-      const rawProgress = scrollY / maxFlightScroll;
+      
+      // Dynamic Flight Distance: completes over the first ~2.0 screens (~1600px)
+      const maxFlightScroll = Math.min(
+        docHeight > 100 ? docHeight : 1800,
+        window.innerHeight * 2.0
+      );
+
+      const rawProgress = scrollY / Math.max(100, maxFlightScroll);
       const clamped = Math.min(1, Math.max(0, rawProgress));
       setScrollProgress(clamped);
     };
@@ -51,11 +84,46 @@ export default function HarryScrollFlyer() {
     handleScroll();
 
     return () => {
+      window.removeEventListener("pointerdown", unlockAudio);
+      window.removeEventListener("touchstart", unlockAudio);
+      window.removeEventListener("click", unlockAudio);
       window.removeEventListener("wobli:toggle-harry", handleToggle);
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  // Play Sound when Harry snaps past camera
+  const playSnapSound = () => {
+    if (!audioTagRef.current) return;
+    try {
+      audioTagRef.current.currentTime = 0;
+      audioTagRef.current.volume = 1.0;
+      const playPromise = audioTagRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Handled gracefully if browser policy blocks before first click
+        });
+      }
+    } catch {
+      // Ignored
+    }
+  };
+
+  // Trigger audio when Harry surges/snaps past the camera (scrollProgress >= 0.70)
+  useEffect(() => {
+    if (!isEnabled) return;
+
+    if (scrollProgress >= 0.70 && scrollProgress <= 0.99) {
+      if (!hasPlayedSnapRef.current) {
+        hasPlayedSnapRef.current = true;
+        playSnapSound();
+      }
+    } else if (scrollProgress < 0.45) {
+      // Rearm trigger when scrolling back up
+      hasPlayedSnapRef.current = false;
+    }
+  }, [scrollProgress, isEnabled]);
 
   // Redraw canvas with the current frame matching scroll position
   useEffect(() => {
@@ -77,8 +145,8 @@ export default function HarryScrollFlyer() {
 
   // Calculate clean fade out at the very end as he zooms past the camera
   let endOpacity = 1;
-  if (scrollProgress > 0.92) {
-    endOpacity = Math.max(0, 1 - (scrollProgress - 0.92) / 0.08);
+  if (scrollProgress > 0.90) {
+    endOpacity = Math.max(0, 1 - (scrollProgress - 0.90) / 0.10);
   }
 
   const combinedOpacity = introOpacity * endOpacity;
@@ -96,6 +164,14 @@ export default function HarryScrollFlyer() {
         visibility: combinedOpacity > 0.01 ? "visible" : "hidden",
       }}
     >
+      {/* Hidden DOM Audio Element for Reliable Browser Media Playback */}
+      <audio
+        ref={audioTagRef}
+        src="/audio/harry-snap.mp3"
+        preload="auto"
+        playsInline
+      />
+
       {/* Tiny magical twinkle when at rest as a dot */}
       {scrollProgress < 0.06 && (
         <div
