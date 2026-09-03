@@ -21,6 +21,18 @@ export default function HangingRopeToggle() {
         new CustomEvent("wobli:toggle-harry", { detail: { visible: isVis } })
       );
     }
+
+    const handleExternalToggle = (e: Event) => {
+      const customEvent = e as CustomEvent<{ visible: boolean }>;
+      if (customEvent.detail && typeof customEvent.detail.visible === "boolean") {
+        setIsHarryVisible(customEvent.detail.visible);
+      }
+    };
+
+    window.addEventListener("wobli:toggle-harry", handleExternalToggle);
+    return () => {
+      window.removeEventListener("wobli:toggle-harry", handleExternalToggle);
+    };
   }, []);
 
   const handlePull = async () => {

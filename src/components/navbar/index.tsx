@@ -150,6 +150,14 @@ export default function Navbar({
                 <Link
                   key={link.key}
                   href={link.href}
+                  onClick={() => {
+                    if (link.key === "how-it-works" || link.key === "reviews") {
+                      localStorage.setItem("wobli_harry_visible", "false");
+                      window.dispatchEvent(
+                        new CustomEvent("wobli:toggle-harry", { detail: { visible: false } })
+                      );
+                    }
+                  }}
                   className={`px-3.5 py-1.5 rounded-full transition-all duration-200 font-display text-xs xl:text-sm font-semibold whitespace-nowrap ${
                     isActive
                       ? "bg-primary-fixed text-on-primary-fixed-variant"
@@ -313,7 +321,15 @@ export default function Navbar({
                       <Link
                         key={link.key}
                         href={link.href}
-                        onClick={() => setIsMobileMenuOpen(false)}
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          if (link.key === "how-it-works" || link.key === "reviews") {
+                            localStorage.setItem("wobli_harry_visible", "false");
+                            window.dispatchEvent(
+                              new CustomEvent("wobli:toggle-harry", { detail: { visible: false } })
+                            );
+                          }
+                        }}
                         className={`flex items-center justify-between px-4 py-3.5 rounded-2xl font-display text-sm font-bold transition-all ${
                           isActive
                             ? "bg-primary-fixed text-primary shadow-xs"
