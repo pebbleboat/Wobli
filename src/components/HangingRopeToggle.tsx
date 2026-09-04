@@ -111,7 +111,7 @@ export default function HangingRopeToggle() {
           {/* Dangling Blue/Purple Wobli Creature Button */}
           <div
             className="group relative flex flex-col items-center transform hover:scale-108 active:scale-95 transition-transform"
-            aria-label={isHarryVisible ? "Pull to hide Harry Potter" : "Pull to show Harry Potter"}
+            aria-label={isHarryVisible ? "Tap to hide Harry Potter" : "Tap to show Harry Potter"}
           >
             {/* Cute Creature Body */}
             <div className="relative w-11 h-12 sm:w-12 sm:h-13 bg-gradient-to-b from-[#8f47ff] via-[#7620e7] to-[#5b0cb8] rounded-[22px] shadow-[0_6px_20px_rgba(118,32,231,0.38)] border-2 border-white/60 flex items-center justify-center overflow-hidden">
@@ -179,7 +179,7 @@ export default function HangingRopeToggle() {
                 <Sparkles className="w-3 h-3 text-secondary-container shrink-0" />
                 <span>
                   {tapMessage ||
-                    (isHarryVisible ? "Pull to Hide Harry 🧹" : "Pull to Wake Harry! ✨")}
+                    (isHarryVisible ? "Tap to Hide Harry 🧹" : "Tap to Wake Harry! ✨")}
                 </span>
               </div>
               <span className="block text-[9px] font-sans text-on-surface-variant">
